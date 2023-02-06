@@ -1,0 +1,47 @@
+<head>
+  <!-- Link to the Bootstrap CSS file -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <!-- Link to the Bootstrap JavaScript file -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+
+<h1>Result List</h1>
+<hr>
+<table border="2">
+    <tr>
+        <th>S.No</th>
+        <th>Patient Name</th>
+        <th>Unique Specimen Id</th>
+        <th>Sample Id</th>
+        <th>Date arrived</th>
+        <th>Sample Type</th>
+        <th>Department</th>
+        <th>Result</th>
+        <th>Status</th>
+        <th>Result processed on</th>
+
+    </tr>
+  {% for result in results %}
+    <tr>
+
+        <td><a href="{% url 'result_update' result.pk %}">{{ forloop.counter }}</a></td>
+      <td>{{ result.sample.patient.name }}</td>
+      <td>{{ result.sample.unique_specimen_id  }}</td>
+      <td>{{ result.sample.sample_id }}</td>
+      <td>{{ result.sample.date_time_arrived }}</td>
+      <td>{{ result.sample.sample_type }}</td>
+      <td>{{ result.sample.department }}</td>
+      <td>{{ result.result_data|safe }}</td>
+      <td>{{ result.result_status }}</td>
+      <td>{{ result.result_date }}</td>
+
+      <td>
+          <a class="btn btn-danger" href="{% url 'result_delete' result.pk %}">DELETE</a>
+      </td>
+
+    </tr>
+  {% endfor %}
+</table>
+

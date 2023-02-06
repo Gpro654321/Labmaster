@@ -1,0 +1,30 @@
+● postgresql@13-main.service - PostgreSQL Cluster 13-main
+     Loaded: loaded (/lib/systemd/system/postgresql@.service; enabled-runtime; vendor preset: disabled)
+     Active: active (running) since Thu 2023-01-26 13:06:50 IST; 7h ago
+   Main PID: 1117 (postgres)
+      Tasks: 7 (limit: 9311)
+     Memory: 33.4M
+        CPU: 8.481s
+     CGroup: /system.slice/system-postgresql.slice/postgresql@13-main.service
+             ├─1117 /usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf
+             ├─1155 postgres: 13/main: checkpointer
+             ├─1156 postgres: 13/main: background writer
+             ├─1157 postgres: 13/main: walwriter
+             ├─1158 postgres: 13/main: autovacuum launcher
+             ├─1159 postgres: 13/main: stats collector
+             └─1160 postgres: 13/main: logical replication launcher
+
+Jan 26 13:06:39 parrot systemd[1]: Starting PostgreSQL Cluster 13-main...
+Jan 26 13:06:50 parrot systemd[1]: Started PostgreSQL Cluster 13-main.
+
+● postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (/lib/systemd/system/postgresql.service; enabled; vendor preset: disabled)
+     Active: active (exited) since Thu 2023-01-26 13:06:50 IST; 7h ago
+   Main PID: 1194 (code=exited, status=0/SUCCESS)
+      Tasks: 0 (limit: 9311)
+     Memory: 0B
+        CPU: 0
+     CGroup: /system.slice/postgresql.service
+
+Jan 26 13:06:50 parrot systemd[1]: Starting PostgreSQL RDBMS...
+Jan 26 13:06:50 parrot systemd[1]: Finished PostgreSQL RDBMS.

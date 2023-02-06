@@ -1,0 +1,64 @@
+from django.shortcuts import render, redirect
+from django.views.generic import ListView
+from django.views.generic.edit import UpdateView, DeleteView
+from django.urls import reverse, reverse_lazy
+
+
+
+from .models import Sample
+from .forms import SampleForm
+
+# Create your views here.
+
+def sample_form_view(request):
+    if request.method == "POST":
+        form = SampleForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data['sample_id'])
+            #print(form.cleaned_data['date_time_arrived'])
+            sample = form.save(commit=False)
+            sample.sample_id = form.cleaned_data['sample_id']
+            sample.save()
+            return(redirect(reverse(sample_form_view)))
+
+        else:
+            print(form.errors)
+            return render(request,'sample_form.html',{'form':form})
+
+    else:
+        form = SampleForm()
+        return render(request,'sample_form.html',{'form':form})
+        
+
+class SampleListView(ListView):
+    model = Sample 
+    template_name = 'sample_list.html'
+    context_object_name = 'samples'
+    
+
+class SampleUpdateView(UpdateView):
+	model = Sample 
+	form_class = SampleForm 
+	template_name = 'sample_update.html'
+	success_url = reverse_lazy('sample_list') 
+
+	#to check if there exists another instance with the same ip number other the one being updated
+	def form_valid(self, form):
+		unique_specimen_id = form.cleaned_data['unique_specimen_id']
+
+		if Sample.objects.filter(unique_specimen_id=unique_specimen_id).exclude(pk=self.object.pk).exists():
+			form.add_error('unique_specimen_id',"Specimen Id number already exists")
+			return self.form_invalid(form)
+		return super().form_valid(form)
+
+
+class SampleDeleteView(DeleteView):
+    model = Sample 
+    success_url = reverse_lazy('sample_list')
+    template_name = 'sample_confirm_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        if "cancel" in request.POST:
+            return redirect('sample_list')
+        else:
+            return super().post(request,*args, **kwargs)
