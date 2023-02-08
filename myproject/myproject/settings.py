@@ -41,6 +41,8 @@ INSTALLED_APPS = [
 
     'ckeditor',
 
+	'user',
+
     'patient',
 	'sample',
 	'result',
@@ -91,6 +93,15 @@ DATABASES = {
 
     }
 }
+
+#Login success url
+#this login url should be in urls.py file, which means that url pattern should have view associated
+#with it.
+#In this case, the view associated is HomeView in the views.py of user app
+LOGIN_REDIRECT_URL = '/home/'
+
+#Authentication backend
+AUTH_USER_MODEL = 'user.User'
 
 
 # Password validation
