@@ -9,6 +9,12 @@ from patient.models import Patient
 class Sample(models.Model):
     class Meta:
         verbose_name = "Sample Information"
+        #permissions = [
+        #    ("view_sample", "Can view sample"),
+        #    ("add_sample", "Can add sample"),
+        #    ("change_sample", "Can change sample"),
+        #    ("delete_sample", "Can delete sample")
+        #]
 
     def __str__(self):
         return f'{self.patient.name} {self.sample_id} \

@@ -1,3 +1,6 @@
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -12,7 +15,7 @@ from .forms import ResultForm
 # Create your views here.
 
 # this is view that handle to create a new result record
-class ResultCreateView(CreateView):
+class ResultCreateView(LoginRequiredMixin,CreateView):
     form_class = ResultForm
     template_name = 'result_form.html'
     success_url = reverse_lazy('result_list')
@@ -22,12 +25,12 @@ class ResultCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ResultListView(ListView):
+class ResultListView(LoginRequiredMixin, ListView):
     model = Result 
     template_name = 'result_list.html'
     context_object_name = 'results'
 
-class ResultUpdateView(UpdateView):
+class ResultUpdateView(LoginRequiredMixin, UpdateView):
     model = Result 
     form_class = ResultForm 
     template_name = 'result_update.html'
@@ -73,7 +76,7 @@ class ResultUpdateView(UpdateView):
         return form
 
 
-class ResultDeleteView(DeleteView):
+class ResultDeleteView(LoginRequiredMixin,DeleteView):
     model = Result 
     success_url = reverse_lazy('result_list')
     template_name = 'result_confirm_delete.html'

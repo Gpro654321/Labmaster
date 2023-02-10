@@ -27,6 +27,12 @@ class Patient(models.Model):
 
     class Meta:
         verbose_name = "Patient Information"
+        #permissions = [
+        #    ("view_patient", "Can view patient"),
+        #    ("add_patient", "Can add patient"),
+        #    ("change_patient", "Can change patient"),
+        #    ("delete_patient", "Can delete patient")
+        #]
 
     def __str__(self):
         return f'{self.name} {self.name}'

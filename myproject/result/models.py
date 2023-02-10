@@ -7,6 +7,13 @@ from sample.models import Sample
 class Result(models.Model):
     class Meta:
         verbose_name = 'Result'
+        #permissions = [
+        #    ("view_result", "Can view result"),
+        #    ("add_result", "Can add result"),
+        #    ("change_result", "Can change result"),
+        #    ("delete_result", "Can delete result")
+
+        #]
 
     def __str__(self):
         return f' {self.sample.sample_id} '

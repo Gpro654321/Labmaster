@@ -63,7 +63,9 @@ ROOT_URLCONF = 'myproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+					os.path.join(BASE_DIR,'templates')
+				],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -99,6 +101,9 @@ DATABASES = {
 #with it.
 #In this case, the view associated is HomeView in the views.py of user app
 LOGIN_REDIRECT_URL = '/home/'
+
+#login url
+LOGIN_URL = '/login/'
 
 #Authentication backend
 AUTH_USER_MODEL = 'user.User'

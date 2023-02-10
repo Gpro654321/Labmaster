@@ -1,5 +1,7 @@
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import ListView
+from django.views.generic import ListView, FormView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 
@@ -9,7 +11,18 @@ from .models import Sample
 from .forms import SampleForm
 
 # Create your views here.
+class SampleFormView(LoginRequiredMixin,FormView):
+    form_class = SampleForm
+    template_name = 'sample_form.html'
+    success_url = reverse_lazy('sample_form_view')
 
+    def form_valid(self, form):
+        sample = form.save(commit=False)
+        sample.sample_id = form.cleaned_data['sample_id']
+        sample.save()
+        return super().form_valid(form)
+
+'''
 def sample_form_view(request):
     if request.method == "POST":
         form = SampleForm(request.POST)
@@ -28,15 +41,16 @@ def sample_form_view(request):
     else:
         form = SampleForm()
         return render(request,'sample_form.html',{'form':form})
-        
 
-class SampleListView(ListView):
+'''
+
+class SampleListView(LoginRequiredMixin,ListView):
     model = Sample 
     template_name = 'sample_list.html'
     context_object_name = 'samples'
     
 
-class SampleUpdateView(UpdateView):
+class SampleUpdateView(LoginRequiredMixin,UpdateView):
 	model = Sample 
 	form_class = SampleForm 
 	template_name = 'sample_update.html'
@@ -52,7 +66,7 @@ class SampleUpdateView(UpdateView):
 		return super().form_valid(form)
 
 
-class SampleDeleteView(DeleteView):
+class SampleDeleteView(LoginRequiredMixin,DeleteView):
     model = Sample 
     success_url = reverse_lazy('sample_list')
     template_name = 'sample_confirm_delete.html'

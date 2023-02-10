@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title%}{%endblock%}</title>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <ul>
+                    <li><a href= "{% url 'home'%}">Home</a></li>
+                    <li><a href= "{% url 'logout'%}">Logout</a><li>
+                </ul>
+            </nav>
+        </header>
+        {% block content %}{% endblock %}
+        <footer>
+            Copyright &copy; {{year}}
+        </footer>
+    </body>
+</html>
