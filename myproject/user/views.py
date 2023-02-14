@@ -1,11 +1,14 @@
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView 
+
+from .forms import ChangePasswordForm
 
 # Create your views here.
 
@@ -42,4 +45,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
 class LogoutView(LogoutView):
     #next_page takes the url to redirect the user after loggin out
     next_page = reverse_lazy('login')
+
+class ChangePasswordView(LoginRequiredMixin, PermissionRequiredMixin,FormView):
+    form_class = ChangePasswordForm
+    template_name = 'change_password.html'
+    success_url = reverse_lazy('home')
+    permission_required = 'change_user'
+
+    def form_valid(self, form):
+        user = self.request.user
+        user.set_password(form.cleaned_data['new_password'])
+        user.save()
+        update_session_auth_hash(self.request, user)
+        return super().form_valid(form)
 

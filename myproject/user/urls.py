@@ -7,4 +7,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     #note that the LogoutView is from the views that was written
     path('logout/', views.LogoutView.as_view(), name = 'logout'),
+    path('change_password/', views.ChangePasswordView.as_view(),name='change_password')
 ]

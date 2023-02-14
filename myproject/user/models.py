@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager, Permission
+from django.contrib.auth.models import User, Group
 from django.db import models
+
 
 
 # Create your models here.
@@ -46,10 +48,32 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.name
 
     def has_perm(self, perm,  obj=None):
+        '''
+        This method was done after a long hours of trouble shooting
+        the models that are created by the contrib.auth.models should be
+        studied in much more detail
+
+        This method checks if the user has a permisssion either through the
+        groups or through the individual permission
+        '''
         if self.is_active and self.is_superuser:
             return True
-
-        return self.user_permissions.filter(codename=perm).exists()
+        # from group_permissions get the permitted permission_id
+        # permission_id is related to permission in auth_permission
+        print(self.id)
+        user_id = self.id
+        #User,Permission, are models that django creates
+        user = User.objects.get(id=user_id)
+        user_groups = user.groups.all() 
+        group_permissions = Permission.objects.filter(group__in=user_groups)
+        individual_permissions = user.user_permissions.filter(codename=perm) 
+        
+        print("indivial permission", individual_permissions.exists())
+        print(group_permissions)
+        print(group_permissions.filter(codename=perm).exists())
+        
+        return group_permissions.filter(codename=perm).exists() or \
+                individual_permissions.exists()
 
     def has_module_perms(self, app_label):
         return self.is_superuser

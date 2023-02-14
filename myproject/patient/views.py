@@ -1,5 +1,5 @@
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from django.shortcuts import render, redirect
 from django.views.generic import FormView, ListView
@@ -10,6 +10,20 @@ from .models import Patient
 from .forms import PatientForm
 
 # Create your views here.
+'''
+class CustomPermissionRequiredMixin(PermissionRequiredMixin):
+	def has_permission(self):
+		print("i am inside customPermissionRequiredmIxin")
+		user = self.request.user
+		print(user)
+		if not user.is_authenticated:
+			print (" User is not authenticated")
+			return False
+		print("user is authenticated")
+		return user.has_perm(self.permission_required)
+
+'''
+
 class PatientFormView(LoginRequiredMixin, FormView):
 	template_name = 'patient_form.html'
 	form_class = PatientForm
@@ -52,10 +66,11 @@ def patient_form_view(request):
 '''
 
 
-class PatientListView(LoginRequiredMixin, ListView):
-    model = Patient
-    template_name = 'patient_list.html'
-    context_object_name = 'patients'
+class PatientListView(LoginRequiredMixin,PermissionRequiredMixin ,ListView):
+	permission_required = 'view_patient'
+	model = Patient
+	template_name = 'patient_list.html'
+	context_object_name = 'patients'
 
 class PatientUpdateView(LoginRequiredMixin, UpdateView):
 	model = Patient
