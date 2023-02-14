@@ -1,5 +1,6 @@
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -25,7 +26,8 @@ class ResultCreateView(LoginRequiredMixin,CreateView):
         return super().form_valid(form)
 
 
-class ResultListView(LoginRequiredMixin, ListView):
+class ResultListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
+    permission_required = 'result.view_result'
     model = Result 
     template_name = 'result_list.html'
     context_object_name = 'results'

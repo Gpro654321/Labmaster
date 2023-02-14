@@ -1,5 +1,5 @@
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import BaseUserManager, Permission
 from django.db import models
 
 
@@ -26,13 +26,13 @@ class UserManager(BaseUserManager):
 
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=30, blank=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(auto_now_add = True)
+    date_joined = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
@@ -46,7 +46,10 @@ class User(AbstractBaseUser):
         return self.name
 
     def has_perm(self, perm,  obj=None):
-        return self.is_superuser
+        if self.is_active and self.is_superuser:
+            return True
+
+        return self.user_permissions.filter(codename=perm).exists()
 
     def has_module_perms(self, app_label):
         return self.is_superuser
