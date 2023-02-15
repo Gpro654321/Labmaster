@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include('sample.urls')),
     path('', include('result.urls')),
     path('', include('user.urls')),
+    path('', include('approval.urls')),
 ]

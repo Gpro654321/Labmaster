@@ -1,5 +1,5 @@
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, FormView
 from django.views.generic.edit import UpdateView, DeleteView
@@ -11,7 +11,8 @@ from .models import Sample
 from .forms import SampleForm
 
 # Create your views here.
-class SampleFormView(LoginRequiredMixin,FormView):
+class SampleFormView(LoginRequiredMixin,PermissionRequiredMixin, FormView):
+    permission_required = 'add_sample'
     form_class = SampleForm
     template_name = 'sample_form.html'
     success_url = reverse_lazy('sample_form_view')
@@ -44,29 +45,32 @@ def sample_form_view(request):
 
 '''
 
-class SampleListView(LoginRequiredMixin,ListView):
+class SampleListView(LoginRequiredMixin,PermissionRequiredMixin,ListView):
+    permission_required = 'view_sample'
     model = Sample 
     template_name = 'sample_list.html'
     context_object_name = 'samples'
     
 
-class SampleUpdateView(LoginRequiredMixin,UpdateView):
-	model = Sample 
-	form_class = SampleForm 
-	template_name = 'sample_update.html'
-	success_url = reverse_lazy('sample_list') 
+class SampleUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
+    permission_required = 'change_sample'
+    model = Sample 
+    form_class = SampleForm 
+    template_name = 'sample_update.html'
+    success_url = reverse_lazy('sample_list') 
 
 	#to check if there exists another instance with the same ip number other the one being updated
-	def form_valid(self, form):
-		unique_specimen_id = form.cleaned_data['unique_specimen_id']
+    def form_valid(self, form):
+        unique_specimen_id = form.cleaned_data['unique_specimen_id']
 
-		if Sample.objects.filter(unique_specimen_id=unique_specimen_id).exclude(pk=self.object.pk).exists():
-			form.add_error('unique_specimen_id',"Specimen Id number already exists")
-			return self.form_invalid(form)
-		return super().form_valid(form)
+        if Sample.objects.filter(unique_specimen_id=unique_specimen_id).exclude(pk=self.object.pk).exists():
+            form.add_error('unique_specimen_id',"Specimen Id number already exists")
+            return self.form_invalid(form)
+        return super().form_valid(form)
 
 
-class SampleDeleteView(LoginRequiredMixin,DeleteView):
+class SampleDeleteView(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
+    permission_required = 'delete_sample'
     model = Sample 
     success_url = reverse_lazy('sample_list')
     template_name = 'sample_confirm_delete.html'

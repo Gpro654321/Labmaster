@@ -47,15 +47,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_name(self):
         return self.name
 
-    def has_perm(self, perm,  obj=None):
-        '''
-        This method was done after a long hours of trouble shooting
-        the models that are created by the contrib.auth.models should be
-        studied in much more detail
 
-        This method checks if the user has a permisssion either through the
-        groups or through the individual permission
-        '''
+    def has_perm(self, perm,  obj=None):
+        #This method was done after a long hours of trouble shooting
+        #the models that are created by the contrib.auth.models should be
+        #studied in much more detail
+
+        #This method checks if the user has a permisssion either through the
+        #groups or through the individual permission
+
         if self.is_active and self.is_superuser:
             return True
         # from group_permissions get the permitted permission_id
@@ -74,6 +74,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         
         return group_permissions.filter(codename=perm).exists() or \
                 individual_permissions.exists()
+
+
 
     def has_module_perms(self, app_label):
         return self.is_superuser

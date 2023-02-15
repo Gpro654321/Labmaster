@@ -1,5 +1,6 @@
 from django.db import models
 from ckeditor.fields import RichTextField
+from django.contrib.auth import get_user_model
 
 from sample.models import Sample
 
@@ -27,7 +28,8 @@ class Result(models.Model):
 
     RESULT_STATUS_CHOICES = (
         ('UnderVerification', "Under Verification"),
-        ('Complete', "Complete"),
+        ('AP', "Assistant Professor Verified"),
+        ('ASP', "Associate Professor Verified")
     )
 
     result_status = models.CharField(
@@ -36,5 +38,15 @@ class Result(models.Model):
         default="UnderVerification",
         verbose_name = "Result Status"
     )
+
+    created_by = models.ForeignKey(get_user_model(), 
+                                   on_delete=models.SET_NULL,
+                                   editable=False,
+                                  blank=True,
+                                  null = True)
+
+
+
+    
 
 

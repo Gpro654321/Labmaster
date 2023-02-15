@@ -16,23 +16,32 @@ from .forms import ResultForm
 # Create your views here.
 
 # this is view that handle to create a new result record
-class ResultCreateView(LoginRequiredMixin,CreateView):
+class ResultCreateView(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
+    permission_required = 'add_result'
     form_class = ResultForm
     template_name = 'result_form.html'
     success_url = reverse_lazy('result_list')
 
     def form_valid(self, form):
+        '''
+        This method actually inserts who the logged in user is to add it to the
+        database. Hence should be kept in mind when in future the views are
+        migrated to APIs
+        '''
+        form.instance.created_by = self.request.user
         form.save()
         return super().form_valid(form)
 
 
 class ResultListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
-    permission_required = 'result.view_result'
+    permission_required = 'view_result'
     model = Result 
     template_name = 'result_list.html'
     context_object_name = 'results'
 
-class ResultUpdateView(LoginRequiredMixin, UpdateView):
+class ResultUpdateView(LoginRequiredMixin, PermissionRequiredMixin,UpdateView):
+    permission_required = 'change_result'
+
     model = Result 
     form_class = ResultForm 
     template_name = 'result_update.html'
@@ -78,7 +87,8 @@ class ResultUpdateView(LoginRequiredMixin, UpdateView):
         return form
 
 
-class ResultDeleteView(LoginRequiredMixin,DeleteView):
+class ResultDeleteView(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
+    permission_required = 'delete_result'
     model = Result 
     success_url = reverse_lazy('result_list')
     template_name = 'result_confirm_delete.html'

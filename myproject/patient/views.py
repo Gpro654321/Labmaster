@@ -24,7 +24,8 @@ class CustomPermissionRequiredMixin(PermissionRequiredMixin):
 
 '''
 
-class PatientFormView(LoginRequiredMixin, FormView):
+class PatientFormView(LoginRequiredMixin,PermissionRequiredMixin ,FormView):
+	permission_required = ['view_patient', 'add_patient']
 	template_name = 'patient_form.html'
 	form_class = PatientForm
 	success_url = reverse_lazy('patient_form')
@@ -72,7 +73,8 @@ class PatientListView(LoginRequiredMixin,PermissionRequiredMixin ,ListView):
 	template_name = 'patient_list.html'
 	context_object_name = 'patients'
 
-class PatientUpdateView(LoginRequiredMixin, UpdateView):
+class PatientUpdateView(LoginRequiredMixin,PermissionRequiredMixin, UpdateView):
+	permission_required = 'change_patient'
 	model = Patient
 	form_class = PatientForm
 	template_name = 'patient_update.html'
@@ -90,15 +92,16 @@ class PatientUpdateView(LoginRequiredMixin, UpdateView):
 	
 	
     
-class PatientDeleteView(LoginRequiredMixin, DeleteView):
-    model = Patient
-    success_url = reverse_lazy('patient_list')
-    template_name = 'patient_confirm_delete.html'
+class PatientDeleteView(LoginRequiredMixin,PermissionRequiredMixin ,DeleteView):
+	permission_required = 'delete_patient'
+	model = Patient
+	success_url = reverse_lazy('patient_list')
+	template_name = 'patient_confirm_delete.html'
 
-    def post(self, request, *args, **kwargs):
-        if "cancel" in request.POST:
-            return redirect('patient_list')
-        else:
-            return super().post(request,*args, **kwargs)
+	def post(self, request, *args, **kwargs):
+		if "cancel" in request.POST:
+			return redirect('patient_list')
+		else:
+			return super().post(request,*args, **kwargs)
 
 
