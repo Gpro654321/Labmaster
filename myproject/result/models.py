@@ -15,6 +15,9 @@ class Result(models.Model):
         #    ("delete_result", "Can delete result")
 
         #]
+        permissions = [
+            ("download_result", "Can Download the Result"),
+        ]
 
     def __str__(self):
         return f' {self.sample.sample_id} '

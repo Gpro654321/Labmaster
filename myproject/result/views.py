@@ -2,13 +2,19 @@
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
-from django.shortcuts import render
+from django.utils.safestring import mark_safe
+from django.template import Context
+from django.template.loader import get_template
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, View
 from django import forms
 
 from django.views.generic import ListView
 from django.views.generic.edit import UpdateView, DeleteView
+
+from weasyprint import HTML
 
 from .models import Result
 from .forms import ResultForm
@@ -98,4 +104,28 @@ class ResultDeleteView(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
             return redirect('result_list')
         else:
             return super().post(request,*args, **kwargs)
+
+
+class ResultListView1(LoginRequiredMixin,PermissionRequiredMixin, ListView):
+    permission_required = 'download_result'
+    model = Result 
+    template_name = 'result_list_download.html'
+    context_object_name = 'results'
+
+class ResultPDFView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'download_result'
+    model = Result
+    success_url = reverse_lazy('result_download')
+    template_name = 'result_pdf.html'
+
+    def get(self, request, pk):
+        template = get_template(self.template_name)
+        result = get_object_or_404(Result, id=pk, result_status = 'ASP')
+        context = {'result':result}
+        html = template.render(context)
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment;filename="{result.id}.pdf"'
+        HTML(string=html).write_pdf(response)
+        return response
+
 

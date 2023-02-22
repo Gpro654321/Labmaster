@@ -11,6 +11,9 @@ class Approval(models.Model):
 
     class Meta:
         verbose_name = "Approval"
+        permissions = [
+            ("add_associate_approval", "Can Approve as Associate Prof"),
+        ]
 
     
     def __str__(self):

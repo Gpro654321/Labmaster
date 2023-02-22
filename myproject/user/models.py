@@ -1,7 +1,9 @@
+import os
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager, Permission
 from django.contrib.auth.models import User, Group
 from django.db import models
+from django.utils import timezone
 
 
 
@@ -29,12 +31,25 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+
+    def unique_file_name(self, filename):
+        '''
+        This function exists to create unique file names for the uploaded
+        files.
+        '''
+        name = self.name
+        now = timezone.now()
+        signature_path = "signatures/"
+
+        return os.path.join(signature_path,f"{name}_{now:%Y%m%d%H%M%S}")
+
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=30, blank=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+    signature = models.FileField(upload_to=unique_file_name, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
@@ -47,6 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_name(self):
         return self.name
 
+        
 
     def has_perm(self, perm,  obj=None):
         #This method was done after a long hours of trouble shooting

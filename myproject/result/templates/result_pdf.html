@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Lab Result</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			font-size: 12px;
+			line-height: 1.5;
+		}
+		h1, h2, h3, h4, h5, h6 {
+			font-weight: bold;
+			margin-top: 0;
+			margin-bottom: 0.5em;
+		}
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+			border: 1px solid #ccc;
+			box-shadow: 0 0 10px #eee;
+			background-color: #fff;
+		}
+		.table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 20px;
+		}
+		.table th, .table td {
+			padding: 5px;
+			border: 1px solid #ccc;
+		}
+		.table th {
+			background-color: #eee;
+			font-weight: bold;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Lab Result</h1>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Patient Name</th>
+					<th>Result ID</th>
+					<th>Result Data</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{ result.sample.patient.name }}</td>
+					<td>{{ result.id }}</td>
+					<td>{{ result.result_data|safe }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
+
