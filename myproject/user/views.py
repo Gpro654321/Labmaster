@@ -2,7 +2,19 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
+
 from django.contrib.auth.views import LogoutView
+# to destroy the user session after logout
+from django.contrib.auth import logout
+
+# to prevent caching page
+from django.views.decorators.cache import never_cache
+# to decorate methods
+from django.utils.decorators import method_decorator
+
+from .mixins import NeverCacheMixin
+
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 
@@ -35,16 +47,23 @@ class LoginView(FormView):
         return render(self.request, self.template_name, {'form': form})
 
 
-class HomeView(LoginRequiredMixin, TemplateView):
+class HomeView(LoginRequiredMixin,NeverCacheMixin,TemplateView):
     """
     The home page. This will be visible only on successful login
     """
     print("successful login")
-    template_name = 'registration/success_login.html'
+    template_name = 'registration/success_login_test.html'
 
 class LogoutView(LogoutView):
     #next_page takes the url to redirect the user after loggin out
     next_page = reverse_lazy('login')
+
+    # prevent caching the page
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        print("I am inside logotuview dispatch")
+        logout(request)
+        return super().dispatch(request, *args, **kwargs)
 
 class ChangePasswordView(LoginRequiredMixin, PermissionRequiredMixin,FormView):
     form_class = ChangePasswordForm
