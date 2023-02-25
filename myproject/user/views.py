@@ -52,7 +52,7 @@ class HomeView(LoginRequiredMixin,NeverCacheMixin,TemplateView):
     The home page. This will be visible only on successful login
     """
     print("successful login")
-    template_name = 'registration/success_login_test.html'
+    template_name = 'base1.html'
 
 class LogoutView(LogoutView):
     #next_page takes the url to redirect the user after loggin out
@@ -77,4 +77,36 @@ class ChangePasswordView(LoginRequiredMixin, PermissionRequiredMixin,FormView):
         user.save()
         update_session_auth_hash(self.request, user)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        '''
+        This method will be called if the form is considered invalid
+        This will call the get_context_data method
+        '''
+        print("form invalid")
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        '''
+        if the form is called by get method a normal form will be shown
+        else a form with errors will be shown
+        '''
+        context = super().get_context_data(**kwargs)
+        print(kwargs)
+        if 'form' not in kwargs:
+            # if 'form' is not there in kwargs, then create a context with a
+            # new form instance with self.form_class()
+            context['form'] = self.form_class()
+        if self.request.method == "POST":
+            context['form'] = kwargs['form']
+            context['form_errors'] = kwargs['form'].errors
+
+
+        #form1 = context['form']
+        #form1.add_error('confirm_password', "Passwords didn't match")
+        print("get context data for password change is being called")
+        print(context)
+        #context['form'].add_error('confirm_password', "passwords did't match")
+        return context
+
 
