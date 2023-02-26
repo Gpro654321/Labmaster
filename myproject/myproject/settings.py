@@ -94,7 +94,26 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '5432',
 
-    }
+    },
+	'test': {
+		#my test database settings
+		#django will create the following database automatically for tests
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'test_labmaster_kapv_db',
+        'USER': 'labmaster_kapv',
+        'PASSWORD': 'labmaster_kapv_password',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+
+	}
+}
+
+# this dictionary will instruct django to use the database mentioned in "NAME" for testing and
+# to use the normal database for other purposes
+TEST = {
+	
+	'NAME' : 'test_labmaster_kapv_db',
+	'MIRROR': 'default',
 }
 
 #Login success url

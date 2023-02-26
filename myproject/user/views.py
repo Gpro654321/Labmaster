@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth.views import LogoutView, LoginView
 # to destroy the user session after logout
 from django.contrib.auth import logout
 
@@ -20,14 +20,31 @@ from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixi
 
 from django.views.generic import FormView, TemplateView 
 
-from .forms import ChangePasswordForm
+from .forms import ChangePasswordForm, CustomLoginForm
 
 # Create your views here.
 
-class LoginView(FormView):
-    template_name = 'login.html'
-    form_class = AuthenticationForm
+class CustomLoginView(FormView):
+    template_name = 'registration/login.html'
+    #form_class = AuthenticationForm
+
+    form_class = CustomLoginForm 
     success_url = '/home/'
+    print("I am inside LoginView")
+
+    def form_valid(self, form):
+        print("successful form_valid")
+
+
+    def post(self, request, *args, **kwargs):
+        
+        print("POST request received")
+
+        return super().post(request,*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        print("GET request")
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         print("form valid")
@@ -36,22 +53,26 @@ class LoginView(FormView):
         user = authenticate(email=email, password=password)
 
         if user is not None:
+            print("login successful")
             login(self.request, user)
             return redirect(self.success_url)
         else:
+            print("invalid creds")
             return render(self.request, self.template_name,{'form':form,
                                         'error': 'Invalid Credentials'})
 
+
     def form_invalid(self, form):
         print("form invalid")
-        return render(self.request, self.template_name, {'form': form})
+        return render(self.request, self.template_name, {'form': form,
+                                            'error':"Invalid Credentials"})
 
 
 class HomeView(LoginRequiredMixin,NeverCacheMixin,TemplateView):
     """
     The home page. This will be visible only on successful login
     """
-    print("successful login")
+    print("successful login1")
     template_name = 'base1.html'
 
 class LogoutView(LogoutView):
