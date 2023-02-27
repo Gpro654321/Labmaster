@@ -32,6 +32,7 @@ class CustomLoginView(FormView):
     success_url = '/home/'
     print("I am inside LoginView")
 
+    '''
     def form_valid(self, form):
         print("successful form_valid")
 
@@ -46,6 +47,8 @@ class CustomLoginView(FormView):
         print("GET request")
         return super().get(request, *args, **kwargs)
 
+    '''
+
     def form_valid(self, form):
         print("form valid")
         email = form.cleaned_data.get('email')
@@ -57,15 +60,15 @@ class CustomLoginView(FormView):
             login(self.request, user)
             return redirect(self.success_url)
         else:
+            # if the authentication fails, then add a custom error
+            # call the form_invalid method with the form with added errors
             print("invalid creds")
-            return render(self.request, self.template_name,{'form':form,
-                                        'error': 'Invalid Credentials'})
+            form.add_error(None,'Invalid Credentials')
+            print(form.errors)
+            
+            return self.form_invalid(form)
 
 
-    def form_invalid(self, form):
-        print("form invalid")
-        return render(self.request, self.template_name, {'form': form,
-                                            'error':"Invalid Credentials"})
 
 
 class HomeView(LoginRequiredMixin,NeverCacheMixin,TemplateView):
@@ -90,28 +93,37 @@ class ChangePasswordView(LoginRequiredMixin, PermissionRequiredMixin,FormView):
     form_class = ChangePasswordForm
     template_name = 'change_password.html'
     success_url = reverse_lazy('home')
+
     permission_required = 'change_user'
 
     def form_valid(self, form):
-        user = self.request.user
-        user.set_password(form.cleaned_data['new_password'])
-        user.save()
-        update_session_auth_hash(self.request, user)
-        return super().form_valid(form)
+        #if form.!= form.new_password:
+        new_password = form.cleaned_data.get('new_password')
+        confirm_password = form.cleaned_data.get('confirm_password')
+        if new_password != confirm_password :
+            form.add_error(None, "Passwords do not match")
+            return self.form_invalid(form)
+
+        else:
+            user = self.request.user
+            user.set_password(form.cleaned_data['new_password'])
+            user.save()
+            update_session_auth_hash(self.request, user)
+            return super().form_valid(form)
+
 
     def form_invalid(self, form):
-        '''
-        This method will be called if the form is considered invalid
-        This will call the get_context_data method
-        '''
-        print("form invalid")
+        #This method will be called if the form is considered invalid
+        #This will call the get_context_data method
+        print("form invalid_password change")
         return self.render_to_response(self.get_context_data(form=form))
 
+
+    '''
     def get_context_data(self, **kwargs):
-        '''
-        if the form is called by get method a normal form will be shown
-        else a form with errors will be shown
-        '''
+        #if the form is called by get method a normal form will be shown
+        #else a form with errors will be shown
+
         context = super().get_context_data(**kwargs)
         print(kwargs)
         if 'form' not in kwargs:
@@ -122,12 +134,18 @@ class ChangePasswordView(LoginRequiredMixin, PermissionRequiredMixin,FormView):
             context['form'] = kwargs['form']
             context['form_errors'] = kwargs['form'].errors
 
-
         #form1 = context['form']
         #form1.add_error('confirm_password', "Passwords didn't match")
         print("get context data for password change is being called")
         print(context)
         #context['form'].add_error('confirm_password', "passwords did't match")
         return context
+
+    '''
+
+
+
+
+
 
 

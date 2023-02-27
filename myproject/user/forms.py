@@ -31,12 +31,16 @@ class ChangePasswordForm(forms.Form):
         new_password = cleaned_data.get("new_password")
         confirm_password = cleaned_data.get("confirm_password")
 
+
+        '''
         if new_password != confirm_password:
             self.add_error('confirm_password', "Passwords do not match")
             print("Passwords donot match")
             raise ValidationError("passwords do not match")
 
-        return 
+        '''
+
+        return self.cleaned_data
 
 
 class CustomLoginForm(AuthenticationForm):
@@ -67,17 +71,6 @@ class CustomLoginForm(AuthenticationForm):
     def clean(self):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
-
-        '''
-
-        if email and password:
-            user = authenticate(email=email, password=password)
-            if not user:
-                raise forms.ValidationError("Invalid email or password")
-
-        '''
-
-
         return self.cleaned_data
 
 
