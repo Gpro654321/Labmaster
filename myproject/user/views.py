@@ -98,14 +98,22 @@ class ChangePasswordView(LoginRequiredMixin, PermissionRequiredMixin,FormView):
 
     def form_valid(self, form):
         #if form.!= form.new_password:
+
+        current_password = form.cleaned_data.get('current_password')
         new_password = form.cleaned_data.get('new_password')
         confirm_password = form.cleaned_data.get('confirm_password')
+
+
+        user = self.request.user
+        if not authenticate(email=user.email,password=current_password):
+            return redirect(reverse_lazy('logout'))
+
         if new_password != confirm_password :
             form.add_error(None, "Passwords do not match")
             return self.form_invalid(form)
 
         else:
-            user = self.request.user
+            #user = self.request.user
             user.set_password(form.cleaned_data['new_password'])
             user.save()
             update_session_auth_hash(self.request, user)
