@@ -1,16 +1,18 @@
 
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, FormView
+from django.views.generic import ListView, FormView, CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 
 
 
 from .models import Sample
-from .forms import SampleForm
+from patient.models import Patient
 
+from .forms import SampleForm
 # Create your views here.
+
 class SampleFormView(LoginRequiredMixin,PermissionRequiredMixin, FormView):
     permission_required = 'add_sample'
     form_class = SampleForm

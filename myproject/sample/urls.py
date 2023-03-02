@@ -1,7 +1,8 @@
 from django.urls import path
 from django.contrib import admin
 
-from .views import SampleFormView, SampleListView, SampleUpdateView,SampleDeleteView
+from .views import SampleFormView, SampleListView,\
+SampleUpdateView,SampleDeleteView 
 
 
 urlpatterns =[

@@ -1,7 +1,14 @@
 import datetime
 
+
+
+from django.forms import formset_factory
+from django.forms.models import inlineformset_factory
+from django.forms.models import BaseInlineFormSet
 from django import forms
 from django import utils
+
+
 
 from .models import Sample
 
@@ -28,7 +35,7 @@ class SampleForm(forms.ModelForm):
 
         if latest_sample:
             latest_sample_id = latest_sample.sample_id
-            print(latest_sample_id)
+            print("latest_sample_id", latest_sample_id)
             latest_sample_id_serial = int(latest_sample_id.split("-")[1])
             print("latest_sample_id_serial", latest_sample_id_serial)
             latest_sample_id_serial = latest_sample_id_serial + 1
@@ -47,4 +54,6 @@ class SampleForm(forms.ModelForm):
             datetime.datetime.now().strftime("%Y-%m-%d") 
 
 
+    
+        
 

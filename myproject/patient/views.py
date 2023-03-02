@@ -2,27 +2,47 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from django.shortcuts import render, redirect
-from django.views.generic import FormView, ListView
+from django.views.generic import FormView, ListView, CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 
 from .models import Patient
 from .forms import PatientForm
 
-# Create your views here.
-'''
-class CustomPermissionRequiredMixin(PermissionRequiredMixin):
-	def has_permission(self):
-		print("i am inside customPermissionRequiredmIxin")
-		user = self.request.user
-		print(user)
-		if not user.is_authenticated:
-			print (" User is not authenticated")
-			return False
-		print("user is authenticated")
-		return user.has_perm(self.permission_required)
+from sample.models import Sample
+from sample.forms import SampleForm
 
-'''
+# Create your views here.
+
+class PatientSampleRedirectView(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
+	'''
+	The logic i am trying to implement,
+	The user should add a patient, 
+	On addition , immediately a instance for a sample should be created
+	and associated with this patien
+	For that i should override the save method in the sample model
+	Then the user should be redirected to the updateView of that sample to further add details of the 
+	sample.
+	'''
+
+	permission_required = ['view_patient', 'add_patient']
+	template_name = "patient_sample_form.html"
+	form_class = PatientForm 
+
+	def form_valid(self, form):
+		patient = form.save()
+		sample_instance = Sample.objects.create(patient=patient)
+		self.sample_instance_pk = sample_instance.pk
+		print(self.sample_instance_pk)
+		return super().form_valid(form)
+
+	def get_success_url(self):
+		return reverse_lazy('sample_update', kwargs={'pk': self.sample_instance_pk})
+
+
+
+
+
 
 class PatientFormView(LoginRequiredMixin,PermissionRequiredMixin ,FormView):
 	permission_required = ['view_patient', 'add_patient']
@@ -33,38 +53,6 @@ class PatientFormView(LoginRequiredMixin,PermissionRequiredMixin ,FormView):
 	def form_valid(self, form):
 		form.save()
 		return super().form_valid(form)
-
-'''
-def patient_form_view(request):
-	if request.method == "POST":
-		print("I am inside if patient_form_view if post is True")
-		form = PatientForm(request.POST)
-		#ip_number = request.POST['ip_number']
-
-		#ip_number = form.cleaned_data['ip_number']
-'''
-'''
-
-		if Patient.objects.filter(ip_number=ip_number).exists():
-
-			form.add_error('ip_number',"IP number already exists")
-			return render(request, 'patient_form.html', {'form':form})
-
-'''
-
-'''
-		if form.is_valid():
-			print("I am inside patient_form_view form is valid")
-			form.save()
-			return redirect(reverse(patient_form_view))
-		else:
-			print(form.errors)
-			return render(request, 'patient_form.html', {'form':form})
-	else:
-		form = PatientForm()
-		return render(request, 'patient_form.html', {'form':form})
-
-'''
 
 
 class PatientListView(LoginRequiredMixin,PermissionRequiredMixin ,ListView):

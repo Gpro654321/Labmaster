@@ -5,6 +5,8 @@ import datetime
 
 from patient.models import Patient
 
+
+
 # Create your models here.
 class Sample(models.Model):
     class Meta:
@@ -20,25 +22,13 @@ class Sample(models.Model):
         return f'{self.patient.name} {self.sample_id} \
             {self.date_time_arrived}'
 
-    '''
-    def save(self, *args, **kwargs):
-        # if there is no instance with a primary key
-        # if the instance is new instance
-        if not self.pk:
-            self.sample_id = kwargs.pop('sample_id') 
-            self.sample_id = sample_id
-        super().save(*args, **kwargs)
-
-    '''
-
-
-
-
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE,
+                                editable=False)
 
     #the following is a the id that is entered by the user but still should be
     #unique
     unique_specimen_id = models.CharField(max_length=200, unique=True,
+                                blank=True,
                                  verbose_name = "Specimen Id")
 
     #The following is a unique specimen id that is created automatically
@@ -49,6 +39,7 @@ class Sample(models.Model):
     )
     sample_type = models.CharField(
         max_length=50,
+        blank=True,
         choices=SAMPLE_TYPE_CHOICES,
         verbose_name = "Sample Type"
     )
@@ -75,6 +66,7 @@ class Sample(models.Model):
 
     department = models.CharField(
         max_length=100,
+        blank=True,
         choices = DEPARTMENT_CHOICES,
         verbose_name = "Department"
         )
@@ -94,31 +86,67 @@ class Sample(models.Model):
         verbose_name="Specimen"
     )
 
-    
-    '''
-    def save(self, *args, **kwargs):
-        # if there is no such sample 
-        if not self.pk:
-            date_str = self.date_arrived.strftime("%Y%m%d")
-            last_sample = Sample.objects.filter(
-                date_arrived__year = self.date_arrived.year,
-                date_arrived__month = self.date_arrived.month,
-                date_arrived__day = self.date_arrived.day
-            ).last()
 
-            # if there is a last sample
-            if last_sample:
+    #################################################
+    # Custom functions required for the save()method#
+    #################################################
+    def generate_sample_id(self):
 
-                sample_id = "{}-{:05d}".format(
-                            date_str,
-                            int(last_sample.sample_id.split("-")[-1])+1
-                            )
-            else:
-                sample_id = "{}-00001".format(date_str)
-            self.sample_id = sample_id
+        try:
+            latest_sample = Sample.objects.latest('date_time_arrived')
+            print("latest sample", latest_sample.sample_id)
+        except Sample.DoesNotExist:
+            latest_sample = False 
+
+        if latest_sample:
+            latest_sample_id = latest_sample.sample_id
+            print(latest_sample_id)
+            latest_sample_id_serial = int(latest_sample_id.split("-")[1])
+            print("latest_sample_id_serial", latest_sample_id_serial)
+            latest_sample_id_serial = latest_sample_id_serial + 1
+            latest_sample_id = \
+            f"{datetime.date.today().strftime('%Y%m%d')}-{str(latest_sample_id_serial).zfill(5)}"
+            #self.fields['sample_id'].initial = latest_sample_id
+
+            #self.sample_id = latest_sample_id
+
+            sample_id = latest_sample_id
+        else:
+            #self.sample_id = \
+            #        f"{datetime.date.today().strftime('%Y%m%d')}-00001"
+
+
+            sample_id = \
+                    f"{datetime.date.today().strftime('%Y%m%d')}-00001"
+        print("generate_sample_id called")
+
+        return sample_id
+
+    def generate_date_time_arrived(self):
+
+        #initialize it to the current time and date
+
+        #Even though the attribute is a datetime one, the form becomes valid
+        # only when the date alone is put in the form field
+        date_time_arrived = \
+            datetime.datetime.now().strftime("%Y-%m-%d") 
+        print("generate_date_time_arrived called")
+        return date_time_arrived
+
+    #########################################
+    # The overloaded save() method          # 
+    #########################################
+
+    def save(self,*args, **kwargs):
+        print("Save method sample method called")
+        if not self.sample_id:
+            self.sample_id = self.generate_sample_id()
+        if not self.date_time_arrived:
+            self.date_time_arrived = self.generate_date_time_arrived()
 
         super().save(*args, **kwargs)
 
-    '''
+
+
 
 

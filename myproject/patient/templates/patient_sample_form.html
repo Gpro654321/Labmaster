@@ -1,9 +1,13 @@
+
 {% extends "base1.html" %}
 
 {% block content %}
+<form method="post">
+    {% csrf_token %}
+
   <h1>Create Patient Record</h1>
   <hr>
-  <form method="post">
+  <form method="post" id="patient_form">
     {% csrf_token %}
     <table >
     {% for field in form %}
@@ -19,7 +23,7 @@
     {{ form.media }}
     {% if form.errors %}
     <ul class="errorlist">
-        {% for field in form %}
+        {% for field in patient_form %}
             {% for error in field.errors %}
             <li>{{ error }}</li>
             {% endfor %}
@@ -29,9 +33,13 @@
 
     </table>
 
-    {{ sample_form.as_p }}
-    <button type="submit">Create</button>
-  </form>
+    {{ form.media }}
+
+    <button type="submit">Submit</button>
+</form>
+
+<hr>
+
 
 {% endblock %}
 
