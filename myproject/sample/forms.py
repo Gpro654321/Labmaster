@@ -13,6 +13,9 @@ from django import utils
 from .models import Sample
 
 class SampleForm(forms.ModelForm):
+    '''
+    This form should be used only when a new sample is to be added
+    '''
     sample_id = forms.CharField(
         widget=forms.TextInput(attrs={'readonly':'readonly'})
     )
@@ -56,4 +59,29 @@ class SampleForm(forms.ModelForm):
 
     
         
+class SampleUpdateForm(forms.ModelForm):
+    '''
+    This form should be used only when a new sample is to be added
+    '''
+    sample_id = forms.CharField(
+        widget=forms.TextInput(attrs={'readonly':'readonly'})
+    )
+    date_time_arrived = forms.DateField(
+        widget=forms.TextInput(attrs={'readonly':'readonly'})
+    ) 
+
+    class Meta:
+        model = Sample
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        latest_sample = Sample.objects.latest('date_time_arrived')
+
+        self.fields['sample_id'].initial = latest_sample.sample_id
+
+        self.fields['date_time_arrived'].initial = \
+            datetime.datetime.now().strftime("%Y-%m-%d") 
+
 

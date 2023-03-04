@@ -10,7 +10,7 @@ from django.urls import reverse, reverse_lazy
 from .models import Sample
 from patient.models import Patient
 
-from .forms import SampleForm
+from .forms import SampleForm, SampleUpdateForm
 # Create your views here.
 
 class SampleFormView(LoginRequiredMixin,PermissionRequiredMixin, FormView):
@@ -57,7 +57,9 @@ class SampleListView(LoginRequiredMixin,PermissionRequiredMixin,ListView):
 class SampleUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     permission_required = 'change_sample'
     model = Sample 
-    form_class = SampleForm 
+    #form_class = SampleForm 
+
+    form_class = SampleUpdateForm
     template_name = 'sample_update.html'
     success_url = reverse_lazy('sample_list') 
 
