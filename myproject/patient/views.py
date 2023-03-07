@@ -1,5 +1,7 @@
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Q
 
 from django.shortcuts import render, redirect
 from django.views.generic import FormView, ListView, CreateView
@@ -7,7 +9,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 
 from .models import Patient
-from .forms import PatientForm
+from .forms import PatientForm, PatientSearchForm
 
 from sample.models import Sample
 from sample.forms import SampleForm
@@ -61,6 +63,12 @@ class PatientListView(LoginRequiredMixin,PermissionRequiredMixin ,ListView):
 	template_name = 'patient_list.html'
 	context_object_name = 'patients'
 
+	def get_queryset(self):
+		'''
+		To order the patient list in the descending order of the created_at
+		'''
+		return self.model.objects.order_by('-created_at')
+
 class PatientUpdateView(LoginRequiredMixin,PermissionRequiredMixin, UpdateView):
 	permission_required = 'change_patient'
 	model = Patient
@@ -92,4 +100,26 @@ class PatientDeleteView(LoginRequiredMixin,PermissionRequiredMixin ,DeleteView):
 		else:
 			return super().post(request,*args, **kwargs)
 
+
+class PatientSearchView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+	model = Patient
+	template_name = 'patient_search.html'
+	permission_required = 'view_patient'
+	paginate_by = 10
+	context_object_name = 'patients'
+	search_fields = ['name', 'dob', 'gender', 'ip_number'] 
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		query = self.request.GET.get('q')
+		if query:
+			queryset = queryset.filter(
+				reduce(operator.or_,(Q(**{f'{field}__icontains': query}) for field in self.search_fields))
+							 )
+		return queryset.order_by('-created_at')
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['search_form'] = PatientSearchForm()
+		return context
 

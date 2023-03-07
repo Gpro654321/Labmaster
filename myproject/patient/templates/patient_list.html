@@ -1,29 +1,31 @@
-<head>
-  <!-- Link to the Bootstrap CSS file -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <!-- Link to the Bootstrap JavaScript file -->
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</head>
 
-{% extends "base.html" %}
+{% extends "base1.html" %}
+
+
+<div class="container-fluid">
 
 {% block content %}
 <h1>Patients List</h1>
 <hr>
-<table border="2">
+<table class="table table-striped table-hover table-sm align-middle" border="2">
     <tr>
-        <th>S.No</th>
-        <th>Name</th>
-        <th>Notes</th>
+        <th scope="col">S.No</th>
+        <th scope="col">UPN</th>
+        <th scope="col">Name</th>
+        <th scope="col">Notes</th>
 
     </tr>
   {% for patient in patients %}
     <tr>
+        <th scope="row">{{ forloop.counter }} </th> 
         <td><a href="{% url 'patient_update' patient.pk %}">{{ patient.pk }}</a></td>
-      <td>{{ patient.name}}</td>
-      <td>{{ patient.notes|safe }}</td>
+        <td>{{ patient.name}}</td>
+        <td>{{ patient.notes|safe }}</td>
+
+        <td>
+            <a class="btn btn-primary" href="{% url 'sample_create' patient.pk %}">ADD ANOTHER SAMPLE</a>
+        </td>
+
       <td>
           <a class="btn btn-danger" href="{% url 'patient_delete' patient.pk %}">DELETE</a>
       </td>
@@ -31,4 +33,7 @@
   {% endfor %}
 </table>
 {% endblock %}
+
+
+</div>
 

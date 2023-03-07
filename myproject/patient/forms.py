@@ -14,3 +14,10 @@ class PatientForm(forms.ModelForm):
         model = Patient
         fields = '__all__'
 
+
+class PatientSearchForm(forms.ModelForm):
+    dob = forms.CharField(widget=AdminDateWidget(attrs={'type':'date',}))
+    class Meta:
+        model = Patient
+        fields = '__all__'
+        exclude = ['medical_history', 'notes']

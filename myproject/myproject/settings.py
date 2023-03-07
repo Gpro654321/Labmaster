@@ -116,6 +116,10 @@ TEST = {
 	'MIRROR': 'default',
 }
 
+FIXTURE_DIRS = [
+	os.path.join(BASE_DIR, 'fixtures'),
+]
+
 #Login success url
 #this login url should be in urls.py file, which means that url pattern should have view associated
 #with it.

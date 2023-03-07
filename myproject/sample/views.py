@@ -1,7 +1,7 @@
 
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, FormView, CreateView
+from django.views.generic import ListView, FormView, CreateView, RedirectView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 
@@ -25,27 +25,28 @@ class SampleFormView(LoginRequiredMixin,PermissionRequiredMixin, FormView):
         sample.save()
         return super().form_valid(form)
 
-'''
-def sample_form_view(request):
-    if request.method == "POST":
-        form = SampleForm(request.POST)
-        if form.is_valid():
-            print(form.cleaned_data['sample_id'])
-            #print(form.cleaned_data['date_time_arrived'])
-            sample = form.save(commit=False)
-            sample.sample_id = form.cleaned_data['sample_id']
-            sample.save()
-            return(redirect(reverse(sample_form_view)))
+class SampleFormFromPatientView(LoginRequiredMixin, PermissionRequiredMixin,
+                                RedirectView):
+    '''
+    This view will be called when a user wants to add another sample from the
+    patients list page
+    '''
+    permission_required = ['add_sample', 'change_sample']
 
-        else:
-            print(form.errors)
-            return render(request,'sample_form.html',{'form':form})
+    def get_redirect_url(self, *args, **kwargs):
+        #receive the primary key from the previous url
+        patient_pk = kwargs.get('pk')
 
-    else:
-        form = SampleForm()
-        return render(request,'sample_form.html',{'form':form})
+        # get the patient object
+        patient = Patient.objects.get(pk=patient_pk)
 
-'''
+        # create a sample instance
+        sample_instance = Sample.objects.create(patient=patient)
+        # get the prmary key for hte created sample object
+        sample_instance_pk = sample_instance.pk
+        # redirect to the sample_update
+        return reverse_lazy('sample_update', kwargs={'pk':sample_instance_pk})
+
 
 class SampleListView(LoginRequiredMixin,PermissionRequiredMixin,ListView):
     permission_required = 'view_sample'
@@ -63,14 +64,16 @@ class SampleUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     template_name = 'sample_update.html'
     success_url = reverse_lazy('sample_list') 
 
-	#to check if there exists another instance with the same ip number other the one being updated
     def form_valid(self, form):
-        unique_specimen_id = form.cleaned_data['unique_specimen_id']
+        try:
+            #try if there is unique_specimen_id in the form
+            unique_specimen_id = form.cleaned_data['unique_specimen_id']
 
-        if Sample.objects.filter(unique_specimen_id=unique_specimen_id).exclude(pk=self.object.pk).exists():
-            form.add_error('unique_specimen_id',"Specimen Id number already exists")
-            return self.form_invalid(form)
-        return super().form_valid(form)
+            if Sample.objects.filter(unique_specimen_id=unique_specimen_id).exclude(pk=self.object.pk).exists():
+                form.add_error('unique_specimen_id',"Specimen Id number already exists")
+                return self.form_invalid(form)
+        except:
+            return super().form_valid(form)
 
 
 class SampleDeleteView(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):

@@ -1,0 +1,33 @@
+{% extends 'base1.html' %}
+
+{% block content %}
+<h1> Search for patients </h1>
+<hr>
+<form method ="get">
+    {% csrf_token %}
+    {% for field in search_form %}
+        <div class="form-class">
+            {{ field.label_tag }}
+            {{ field }}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Search</button>
+</form> 
+
+<hr>
+
+{% if patients %}
+<div class="card-deck">
+    {% for patient in patients %}
+    {{patient.name}}
+    {% endfor %}
+</div>
+
+{% else %}
+<p> No patients found.</p>
+{% endif %}
+    
+</div>
+
+
+{% endblock %}

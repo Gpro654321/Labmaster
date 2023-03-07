@@ -73,6 +73,9 @@ class SampleUpdateForm(forms.ModelForm):
     class Meta:
         model = Sample
         fields = "__all__"
+        # since the unique_specimen_id is going to generated automatically, it
+        # need not be displayed in the form
+        exclude = ['unique_specimen_id']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
