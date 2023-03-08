@@ -4,13 +4,19 @@
 <h1> Search for patients </h1>
 <hr>
 <form method ="get">
+    
     {% csrf_token %}
-    {% for field in search_form %}
-        <div class="form-class">
-            {{ field.label_tag }}
-            {{ field }}
-        </div>
-    {% endfor %}
+    <div class="row">
+
+        {% for field in search_form %}
+            <div class="col-md-3">
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+            </div>
+        {% endfor %}
+    </div>
     <button type="submit" class="btn btn-primary">Search</button>
 </form> 
 

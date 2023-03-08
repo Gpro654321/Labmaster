@@ -8,6 +8,9 @@ from django.views.generic import FormView, ListView, CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 
+from functools import reduce
+import operator
+
 from .models import Patient
 from .forms import PatientForm, PatientSearchForm
 
@@ -111,11 +114,14 @@ class PatientSearchView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 	def get_queryset(self):
 		queryset = super().get_queryset()
-		query = self.request.GET.get('q')
-		if query:
-			queryset = queryset.filter(
-				reduce(operator.or_,(Q(**{f'{field}__icontains': query}) for field in self.search_fields))
-							 )
+		form = PatientSearchForm(data=self.request.GET)
+		if form.is_valid():
+		# this will call the clean method in the PatientSearchForm
+			query_params = {k: v for k,v in self.request.GET.items() if (v and k != 'csrfmiddlewaretoken') }
+			queries = [Q(**{f'{field}__icontains': query_params[field]}) for field in query_params]
+			queryset = queryset.filter(reduce(operator.and_, queries))
+		else:
+			queryset = queryset.none()
 		return queryset.order_by('-created_at')
 
 	def get_context_data(self, **kwargs):
