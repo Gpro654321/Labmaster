@@ -115,8 +115,11 @@ class PatientSearchView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 	def get_queryset(self):
 		queryset = super().get_queryset()
 		form = PatientSearchForm(data=self.request.GET)
+
+
 		if form.is_valid():
 		# this will call the clean method in the PatientSearchForm
+			#create a dictionary of query_params with all other keys other than csrfmiddlewaretoken
 			query_params = {k: v for k,v in self.request.GET.items() if (v and k != 'csrfmiddlewaretoken') }
 			queries = [Q(**{f'{field}__icontains': query_params[field]}) for field in query_params]
 			queryset = queryset.filter(reduce(operator.and_, queries))
