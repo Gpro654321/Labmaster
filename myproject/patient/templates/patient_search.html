@@ -42,7 +42,8 @@
             <th scope="col">Name</th>
             <th scope="col">Notes</th>
         </tr>
-        {% for patient in patients %}
+
+        {% for patient in page_obj %}
 
         <tr>
             <th scope="row">{{ forloop.counter }} </th> 
@@ -69,5 +70,26 @@
     
 </div>
 
+<!-- Pagination code-->
+
+
+{% if is_paginated %}
+<h1>hello</h1>
+    {% if page_obj.has_previous %}
+        <h2>Previous page</h2>
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ page_obj.previous_page_number }}&amp;{{ query_params }}">previous</a>
+    {% endif %}
+    <span class="current">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+    {% if page_obj.has_next %}
+        <h2>nextpage</h2>
+        <a href="?page={{ page_obj.next_page_number }}&amp;{{ query_params }}">next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+    {% endif %}
+{% endif %}
+
+<!-- end of pagination code -->
 
 {% endblock %}
