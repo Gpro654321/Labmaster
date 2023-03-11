@@ -1,7 +1,9 @@
 import datetime
 
+from django.core.exceptions import ValidationError
 
 
+from django.contrib.admin.widgets import AdminDateWidget
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
@@ -86,5 +88,42 @@ class SampleUpdateForm(forms.ModelForm):
 
         self.fields['date_time_arrived'].initial = \
             datetime.datetime.now().strftime("%Y-%m-%d") 
+
+
+class SampleSearchForm(forms.ModelForm):
+    date_time_arrived = forms.CharField(widget=AdminDateWidget(attrs={'type':'date',}))
+    class Meta:
+        model = Sample 
+        fields = '__all__'
+        exclude = ['procedure_performed', 'specimen']
+
+    def __init__(self, *args, **kwargs):
+        '''
+        Overriding the init method to make the fields requirement to False
+        '''
+
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+            field.widget.attrs.update(
+                {
+                    'class':'form-control',
+                    'placeholder': field.label,
+                }
+
+            )
+
+    def clean(self):
+        '''
+        Raise a validation error if none of the fields are filled
+        '''
+
+        cleaned_data = super().clean()
+        print("i am inside clean method sample seach form")
+        print("I am inside clean method Sample Search form",cleaned_data)
+        if not any(cleaned_data.values()):
+            print("i am inside clean method  if  Sample Search form")
+            raise ValidationError("Atleast one field must be filled")
+        return cleaned_data
 
 

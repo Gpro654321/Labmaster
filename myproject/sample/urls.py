@@ -2,7 +2,8 @@ from django.urls import path
 from django.contrib import admin
 
 from .views import SampleFormView, SampleListView,\
-SampleUpdateView,SampleDeleteView, SampleFormFromPatientView 
+SampleUpdateView,SampleDeleteView, SampleFormFromPatientView,\
+SampleSearchView
 
 
 urlpatterns =[
@@ -16,5 +17,7 @@ urlpatterns =[
       'sample_create'),
 
     path('sample/<int:pk>/delete/', SampleDeleteView.as_view(), name = 'sample_delete'),
+
+    path('sample_search/', SampleSearchView.as_view(), name='sample_search'),
 	
 ]

@@ -180,7 +180,11 @@ class Sample(models.Model):
 
     def generate_sample_id(self):
         try:
-            latest_sample = Sample.objects.latest('date_time_arrived')
+            #latest_sample = Sample.objects.latest('date_time_arrived')
+            today = utils.timezone.now().date()
+
+            latest_sample = \
+            Sample.objects.filter(date_time_arrived__date=today).latest('date_time_arrived')
             print("latest sample", latest_sample.sample_id)
         except Sample.DoesNotExist:
             latest_sample = False 

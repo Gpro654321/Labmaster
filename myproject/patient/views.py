@@ -7,12 +7,15 @@ from django.shortcuts import render, redirect
 from django.views.generic import FormView, ListView, CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
+from django.http import QueryDict
+from django.core import serializers
 
 from functools import reduce
 import operator
+from urllib.parse import urlencode
 
 from .models import Patient
-from .forms import PatientForm, PatientSearchForm
+from .forms import PatientForm,PatientUpdateForm ,PatientSearchForm
 
 from sample.models import Sample
 from sample.forms import SampleForm
@@ -65,6 +68,7 @@ class PatientListView(LoginRequiredMixin,PermissionRequiredMixin ,ListView):
 	model = Patient
 	template_name = 'patient_list.html'
 	context_object_name = 'patients'
+	paginate_by = 5
 
 	def get_queryset(self):
 		'''
@@ -75,7 +79,7 @@ class PatientListView(LoginRequiredMixin,PermissionRequiredMixin ,ListView):
 class PatientUpdateView(LoginRequiredMixin,PermissionRequiredMixin, UpdateView):
 	permission_required = 'change_patient'
 	model = Patient
-	form_class = PatientForm
+	form_class = PatientUpdateForm
 	template_name = 'patient_update.html'
 	success_url = reverse_lazy('patient_list') 
 
@@ -104,31 +108,63 @@ class PatientDeleteView(LoginRequiredMixin,PermissionRequiredMixin ,DeleteView):
 			return super().post(request,*args, **kwargs)
 
 
-class PatientSearchView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-	model = Patient
-	template_name = 'patient_search.html'
+
+class PatientSearchView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+
 	permission_required = 'view_patient'
-	paginate_by = 10
+	template_name = 'patient_search.html'
+	form_class = PatientSearchForm
+	print("Inside PatientSearchView1")
+
+	
+
+	def form_valid(self, form):
+		self.request.session['form_data'] = form.cleaned_data
+		return super().form_valid(form)
+
+	def get_success_url(self):
+		return reverse_lazy('patient_search_result')
+
+class PatientSearchResultView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+	permission_required = 'view_patient'
+	template_name = 'patient_search_result.html'
 	context_object_name = 'patients'
-	search_fields = ['name', 'dob', 'gender', 'ip_number'] 
-
-	def get_queryset(self):
-		queryset = super().get_queryset()
-		form = PatientSearchForm(data=self.request.GET)
-
-
-		if form.is_valid():
-		# this will call the clean method in the PatientSearchForm
-			#create a dictionary of query_params with all other keys other than csrfmiddlewaretoken
-			query_params = {k: v for k,v in self.request.GET.items() if (v and k != 'csrfmiddlewaretoken') }
-			queries = [Q(**{f'{field}__icontains': query_params[field]}) for field in query_params]
-			queryset = queryset.filter(reduce(operator.and_, queries))
-		else:
-			queryset = queryset.none()
-		return queryset.order_by('-created_at')
+	model = Patient
+	paginate_by = 2
 
 	def get_context_data(self, **kwargs):
+		'''
+		pass on the required form via the context to render the seach form along with the search results
+		'''
 		context = super().get_context_data(**kwargs)
 		context['search_form'] = PatientSearchForm()
 		return context
+
+
+	def get_queryset(self, **kwargs):
+		queryset = super().get_queryset()
+		form_data = self.request.session.get('form_data')
+		print("inside get queryset")
+		print(form_data)
+		print("get queryset PatientSearchResultView")
+
+		if form_data:
+			print("inside form data")
+			for param, value in form_data.items():
+				if param != 'csrfmiddlewaretoken':
+					if queryset.model._meta.get_field(param).get_internal_type() == 'CharField':
+						if value != '':
+							queryset = queryset.filter(**{f'{param}__icontains':value})
+					else:
+						if value != '':
+							queryset = queryset.filter(**{f'{param}':value})
+
+		return queryset.order_by('-created_at')
+
+	
+
+
+
+	
+
 

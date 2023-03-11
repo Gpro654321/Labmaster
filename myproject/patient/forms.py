@@ -15,6 +15,40 @@ class PatientForm(forms.ModelForm):
         model = Patient
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        '''
+        Overriding the init method to make the fields take the bootstrap style 
+        '''
+
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update(
+                {
+                    'class':'form-control',
+                    'placeholder': field.label,
+                }
+
+            )
+
+
+class PatientUpdateForm(forms.ModelForm):
+    #medical_history = forms.CharField(widget=CKEditorWidget())
+    
+    #notes = RichTextField(blank=True)
+    #name = forms.CharField(
+       # widget=forms.TextInput(attrs={'readonly':'readonly'})
+    #)
+    dob = forms.CharField(widget=AdminDateWidget(attrs={'type':'date',}))
+    class Meta:
+        model = Patient
+        fields = '__all__'
+
+    '''
+    Since the primary key is unique, name of the patient can be modified during
+    an update
+    '''
+
+
 
 
 class PatientSearchForm(forms.ModelForm):
@@ -40,10 +74,9 @@ class PatientSearchForm(forms.ModelForm):
 
             )
 
+
     def clean(self):
-        '''
-        Raise a validation error if none of the fields are filled
-        '''
+        #Raise a validation error if none of the fields are filled
 
         cleaned_data = super().clean()
         print("i am inside clean method patient seach form")
@@ -52,6 +85,7 @@ class PatientSearchForm(forms.ModelForm):
             print("i am inside clean method  if  Patient Search form")
             raise ValidationError("Atleast one field must be filled")
         return cleaned_data
+
 
 
 

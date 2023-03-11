@@ -12,7 +12,10 @@
         <th scope="col">S.No</th>
         <th scope="col">UPN</th>
         <th scope="col">Name</th>
-        <th scope="col">Notes</th>
+        <th scope="col">Gender</th>
+        <th scope="col">Created On</th>
+        <th scope="col">Add </th>
+        <th scope="col">Delete </th>
 
     </tr>
   {% for patient in patients %}
@@ -20,7 +23,8 @@
         <th scope="row">{{ forloop.counter }} </th> 
         <td><a href="{% url 'patient_update' patient.pk %}">{{ patient.pk }}</a></td>
         <td>{{ patient.name}}</td>
-        <td>{{ patient.notes|safe }}</td>
+        <td>{{ patient.gender }}</td>
+        <td>{{ patient.created_at }}</td>
 
         <td>
             <a class="btn btn-primary" href="{% url 'sample_create' patient.pk %}">ADD ANOTHER SAMPLE</a>
@@ -32,6 +36,44 @@
     </tr>
   {% endfor %}
 </table>
+
+<!-- Pagination code-->
+
+
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center pagination-sm">
+        {% if is_paginated %}
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">&laquo;<b>1</b></a>
+            </li>
+
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&amp;{{query_params}}">&lArr;</a>
+            </li>
+            {% endif %}
+            <li class="page-item current active">
+                <span class="page-link">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number}}&amp;{{ query_params }}"><b>&rArr;</b></a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}&raquo;</a>
+            </li>
+            {% endif %}
+        {% endif %}
+        </ul>
+    </nav>
+
+
+
+<!-- end of pagination code -->
+
+
 {% endblock %}
 
 

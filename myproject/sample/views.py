@@ -5,12 +5,15 @@ from django.views.generic import ListView, FormView, CreateView, RedirectView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 
+from django.db.models import Q
+from functools import reduce
+import operator
 
 
 from .models import Sample
 from patient.models import Patient
 
-from .forms import SampleForm, SampleUpdateForm
+from .forms import SampleForm, SampleUpdateForm, SampleSearchForm
 # Create your views here.
 
 class SampleFormView(LoginRequiredMixin,PermissionRequiredMixin, FormView):
@@ -53,6 +56,15 @@ class SampleListView(LoginRequiredMixin,PermissionRequiredMixin,ListView):
     model = Sample 
     template_name = 'sample_list.html'
     context_object_name = 'samples'
+    paginate_by = 5
+
+    def get_queryset(self):
+        '''
+        To order the sample list in the descending order of the
+        date_time_arrived 
+        '''
+        return self.model.objects.order_by('-date_time_arrived')
+
     
 
 class SampleUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
@@ -87,3 +99,15 @@ class SampleDeleteView(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
             return redirect('sample_list')
         else:
             return super().post(request,*args, **kwargs)
+
+
+class SampleSearchView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+	model = Sample 
+	template_name = 'sample_search.html'
+	permission_required = 'view_sample'
+	paginate_by = 2 
+	context_object_name = 'samples'
+	#search_fields = ['patient', 'unique_specimen_id', 'sample_id',
+    #              'sample_type', 'department'] 
+	print("SampleSearchView Called")
+
