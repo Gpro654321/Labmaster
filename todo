@@ -2,3 +2,8 @@ to create a method to dynamically create a unique_specimen_id based on what type
 
 4th March 2023
 write test cases for patient app
+
+12th March 2023
+PatientSearchForm1
+dob_from and dob_to Validation
+implementatin of range search in PatientSearchResultView

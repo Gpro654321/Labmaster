@@ -101,13 +101,56 @@ class SampleDeleteView(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
             return super().post(request,*args, **kwargs)
 
 
-class SampleSearchView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-	model = Sample 
-	template_name = 'sample_search.html'
+
+class SampleSearchView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+
 	permission_required = 'view_sample'
-	paginate_by = 2 
+	template_name = 'sample_search.html'
+	form_class = SampleSearchForm
+	print("Inside SampleSearchView")
+
+	
+
+	def form_valid(self, form):
+		self.request.session['form_data'] = form.cleaned_data
+		return super().form_valid(form)
+
+	def get_success_url(self):
+		return reverse_lazy('sample_search_result')
+
+class SampleSearchResultView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+	permission_required = 'view_sample'
+	template_name = 'sample_search_result.html'
 	context_object_name = 'samples'
-	#search_fields = ['patient', 'unique_specimen_id', 'sample_id',
-    #              'sample_type', 'department'] 
-	print("SampleSearchView Called")
+	model = Sample 
+	paginate_by = 2
+
+	def get_context_data(self, **kwargs):
+		'''
+		pass on the required form via the context to render the seach form along with the search results
+		'''
+		context = super().get_context_data(**kwargs)
+		context['search_form'] = SampleSearchForm()
+		return context
+
+
+	def get_queryset(self, **kwargs):
+		queryset = super().get_queryset()
+		form_data = self.request.session.get('form_data')
+		print("inside get queryset")
+		print(form_data)
+		print("get queryset SampleSearchResultView")
+
+		if form_data:
+			print("inside form data")
+			for param, value in form_data.items():
+				if param != 'csrfmiddlewaretoken':
+					if queryset.model._meta.get_field(param).get_internal_type() == 'CharField':
+						if value != '':
+							queryset = queryset.filter(**{f'{param}__icontains':value})
+					else:
+						if value != '':
+							queryset = queryset.filter(**{f'{param}':value})
+
+		return queryset.order_by('-date_time_arrived')
 

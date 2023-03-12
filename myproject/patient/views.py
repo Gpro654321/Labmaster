@@ -15,7 +15,7 @@ import operator
 from urllib.parse import urlencode
 
 from .models import Patient
-from .forms import PatientForm,PatientUpdateForm ,PatientSearchForm
+from .forms import PatientForm,PatientUpdateForm ,PatientSearchForm, PatientSearchForm1
 
 from sample.models import Sample
 from sample.forms import SampleForm
@@ -113,8 +113,8 @@ class PatientSearchView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 	permission_required = 'view_patient'
 	template_name = 'patient_search.html'
-	form_class = PatientSearchForm
-	print("Inside PatientSearchView1")
+	form_class = PatientSearchForm1
+	print("Inside PatientSearchView")
 
 	
 
@@ -137,7 +137,7 @@ class PatientSearchResultView(LoginRequiredMixin, PermissionRequiredMixin, ListV
 		pass on the required form via the context to render the seach form along with the search results
 		'''
 		context = super().get_context_data(**kwargs)
-		context['search_form'] = PatientSearchForm()
+		context['search_form'] = PatientSearchForm1()
 		return context
 
 

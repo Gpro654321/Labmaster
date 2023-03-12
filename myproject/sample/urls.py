@@ -3,7 +3,7 @@ from django.contrib import admin
 
 from .views import SampleFormView, SampleListView,\
 SampleUpdateView,SampleDeleteView, SampleFormFromPatientView,\
-SampleSearchView
+SampleSearchView, SampleSearchResultView
 
 
 urlpatterns =[
@@ -19,5 +19,7 @@ urlpatterns =[
     path('sample/<int:pk>/delete/', SampleDeleteView.as_view(), name = 'sample_delete'),
 
     path('sample_search/', SampleSearchView.as_view(), name='sample_search'),
+    path('sample_search_result/', SampleSearchResultView.as_view(),
+         name='sample_search_result')
 	
 ]
